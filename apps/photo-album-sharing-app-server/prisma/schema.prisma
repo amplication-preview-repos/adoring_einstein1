@@ -1,0 +1,83 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Album {
+  id          String       @id @default(cuid())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  description String?
+  coverPhoto  Json?
+  title       String?
+  userAlbums  UserAlbum[]
+  albumPhotos AlbumPhoto[]
+}
+
+model Photo {
+  id             String          @id @default(cuid())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  url            String?
+  title          String?
+  description    String?
+  uploadedAt     DateTime?
+  albumPhotos    AlbumPhoto[]
+  playlistPhotos PlaylistPhoto[]
+}
+
+model Playlist {
+  id             String          @id @default(cuid())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  name           String?
+  description    String?
+  playlistPhotos PlaylistPhoto[]
+}
+
+model UserAlbum {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  album     Album?   @relation(fields: [albumId], references: [id])
+  albumId   String?
+}
+
+model PlaylistPhoto {
+  id         String    @id @default(cuid())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  playlist   Playlist? @relation(fields: [playlistId], references: [id])
+  playlistId String?
+  photo      Photo?    @relation(fields: [photoId], references: [id])
+  photoId    String?
+}
+
+model AlbumPhoto {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  album     Album?   @relation(fields: [albumId], references: [id])
+  albumId   String?
+  photo     Photo?   @relation(fields: [photoId], references: [id])
+  photoId   String?
+}
+
+model User {
+  id         String      @id @default(cuid())
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  firstName  String?
+  lastName   String?
+  username   String      @unique
+  email      String?     @unique
+  password   String
+  roles      Json
+  userAlbums UserAlbum[]
+}
